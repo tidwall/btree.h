@@ -22,11 +22,11 @@
 #define BTREE_C(a, b)  BTREE_CC(a, b)
 
 // API symbols are the calls available to the user.
-#define BTREE_API(name)   BTREE_C(BTREE_C(BTREE_NAME, _), name)
+#define BTREE_API(name) BTREE_C(BTREE_C(BTREE_NAME,_),name)
 
 // Internal symbols are prefixed with an underscore.
 // These should not be directly called by the user.
-#define BTREE_SYM(name)   BTREE_C(BTREE_C(BTREE_C(_, BTREE_NAME), _internal_), name)
+#define BTREE_SYM(name) BTREE_C(BTREE_C(BTREE_C(_,BTREE_NAME),_internal_),name)
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -268,8 +268,8 @@ BTREE_EXTERN int BTREE_API(back_mut)(BTREE_NODE **root, BTREE_ITEM *item_out,
     void *udata);
 BTREE_EXTERN void BTREE_API(iter_init_mut)(BTREE_NODE **root, BTREE_ITER **iter,
     void *udata);
-BTREE_EXTERN int BTREE_API(scan_mut)(BTREE_NODE **root, bool(*iter)(BTREE_ITEM item,
-    void *udata), void *udata);
+BTREE_EXTERN int BTREE_API(scan_mut)(BTREE_NODE **root, 
+    bool(*iter)(BTREE_ITEM item, void *udata), void *udata);
 BTREE_EXTERN int BTREE_API(scan_desc_mut)(BTREE_NODE **root,
     bool(*iter)(BTREE_ITEM item, void *udata), void *udata);
 BTREE_EXTERN int BTREE_API(seek_mut)(BTREE_NODE **root, BTREE_ITEM key,
@@ -353,15 +353,16 @@ static int BTREE_SYM(compare)(BTREE_ITEM a, BTREE_ITEM b, void *udata) {
 }
 #if !defined(BTREE_NOORDER)
 #error \
-Neither BTREE_COMPARE nor BTREE_LESS were defined. \
-Alternatively define BTREE_NOORDER if only the "Counted B-tree" API is desired. \
+Neither BTREE_COMPARE nor BTREE_LESS were defined. Alternatively define \
+BTREE_NOORDER if only the "Counted B-tree" API is desired. \
 Visit https://github.com/tidwall/btree.h for more information.
 #endif
 #endif
 
 #if defined(BTREE_NOORDER) && (defined(BTREE_LESS) || defined(BTREE_COMPARE))
 #error \
-Neither BTREE_COMPARE nor BTREE_LESS are allowed when BTREE_NOORDER is defined. \
+Neither BTREE_COMPARE nor BTREE_LESS are allowed when BTREE_NOORDER is \
+defined. \
 Visit https://github.com/tidwall/btree.h for more information.
 #endif
 
@@ -372,7 +373,9 @@ static bool BTREE_SYM(maybelessequal)(BTREE_ITEM a, BTREE_ITEM b, void *udata) {
 }
 #endif
 
-static bool BTREE_SYM(item_copy)(BTREE_ITEM item, BTREE_ITEM *copy, void *udata) {
+static bool BTREE_SYM(item_copy)(BTREE_ITEM item, BTREE_ITEM *copy, 
+    void *udata)
+{
     (void)item, (void)copy, (void)udata;
 #ifdef BTREE_ITEMCOPY
     BTREE_ITEMCOPY
@@ -717,8 +720,8 @@ static int BTREE_SYM(search_bsearch)(BTREE_ITEM *items, int nitems,
 }
 #else
 BTREE_INLINE
-static int BTREE_SYM(search_linear)(BTREE_ITEM *items, int nitems, BTREE_ITEM key,
-    void *udata, int *found)
+static int BTREE_SYM(search_linear)(BTREE_ITEM *items, int nitems,
+    BTREE_ITEM key, void *udata, int *found)
 {
     int i = 0;
     *found = 0;
@@ -904,7 +907,9 @@ static void BTREE_SYM(print)(BTREE_NODE **root, FILE *file,
     }
 }
 
-static BTREE_NODE *BTREE_SYM(node_copy)(BTREE_NODE *node, bool deep, void *udata) {
+static BTREE_NODE *BTREE_SYM(node_copy)(BTREE_NODE *node, bool deep,
+    void *udata)
+{
     BTREE_NODE *node2 = BTREE_SYM(alloc_node)(node->isleaf, udata);
     if (!node2) {
         return 0;
@@ -1024,8 +1029,8 @@ static int BTREE_SYM(scan)(BTREE_NODE **root, bool(*iter)(BTREE_ITEM item,
     return status;
 }
 
-static bool BTREE_SYM(node_scan_mut)(BTREE_NODE *node, bool(*iter)(BTREE_ITEM item, 
-    void *udata), void *udata, int *status)
+static bool BTREE_SYM(node_scan_mut)(BTREE_NODE *node,
+    bool(*iter)(BTREE_ITEM item, void *udata), void *udata, int *status)
 {
     if (node->isleaf) {
         for (int i = 0; i < node->len; i++) {
@@ -1146,8 +1151,8 @@ static bool BTREE_SYM(node_scan_desc_mut)(BTREE_NODE *node, bool(*iter)(
     return true;
 }
 
-static int BTREE_SYM(scan_desc_mut)(BTREE_NODE **root, bool(*iter)(BTREE_ITEM item,
-    void *udata), void *udata)
+static int BTREE_SYM(scan_desc_mut)(BTREE_NODE **root,
+    bool(*iter)(BTREE_ITEM item, void *udata), void *udata)
 {
     int status = BTREE_FINISHED;
     if (*root) {
@@ -1605,7 +1610,9 @@ static int BTREE_SYM(seek_desc_mut)(BTREE_NODE **root, BTREE_ITEM key,
         if (!BTREE_SYM(cow)(root, udata)) {
             return BTREE_NOMEM;
         }
-        if (!BTREE_SYM(node_seek_desc_mut)(*root, key, iter, udata, 0, &status)){
+        if (!BTREE_SYM(node_seek_desc_mut)(*root, key, iter, udata, 0,
+            &status))
+        {
             if (status == BTREE_FINISHED) {
                 status = BTREE_STOPPED;
             }
@@ -1671,8 +1678,8 @@ static int BTREE_SYM(index_of)(BTREE_NODE **root, BTREE_ITEM key,
 }
 
 // returns FOUND or NOTFOUND
-static int BTREE_SYM(get)(BTREE_NODE **root, BTREE_ITEM key, BTREE_ITEM *item_out,
-    void *udata)
+static int BTREE_SYM(get)(BTREE_NODE **root, BTREE_ITEM key,
+    BTREE_ITEM *item_out, void *udata)
 {
 #ifdef BTREE_NOORDER
     (void)root, (void)key, (void)item_out, (void)udata;
@@ -1751,7 +1758,7 @@ static int BTREE_SYM(get_mut)(BTREE_NODE **root, BTREE_ITEM key,
 }
 
 // returns true if key is found
-static bool BTREE_SYM(contains)(BTREE_NODE **root, BTREE_ITEM key, void *udata) {
+static bool BTREE_SYM(contains)(BTREE_NODE **root, BTREE_ITEM key, void *udata){
     return BTREE_SYM(get)(root, key, 0, udata) == BTREE_FOUND;
 }
 
@@ -2077,7 +2084,8 @@ static int BTREE_SYM(insert0)(BTREE_NODE **root, int act, size_t index,
         return BTREE_NOMEM;
     }
     while (1) {
-        int ret = BTREE_SYM(insert1)(*root, act, index, item, olditem, udata, 0);
+        int ret = BTREE_SYM(insert1)(*root, act, index, item, olditem, udata, 
+            0);
         if (ret != BTREE_MUSTSPLIT) {
             return ret;
         }
@@ -2192,7 +2200,9 @@ static int BTREE_SYM(insert)(BTREE_NODE **root, BTREE_ITEM item,
 #endif
 }
 
-static void BTREE_SYM(shift_left)(BTREE_NODE *node, int i, int n, bool for_merge){
+static void BTREE_SYM(shift_left)(BTREE_NODE *node, int i, int n,
+    bool for_merge)
+{
     BTREE_ASSERT(!BTREE_SYM(shared)(node));
     n--;
     for (int j = i; j < node->len-1; j++) {
@@ -2615,8 +2625,8 @@ static int BTREE_SYM(delete_fastpath)(BTREE_NODE **root, BTREE_ITEM key,
 #endif
 
 // returns DELETED, NOTFOUND, or NOMEM
-static int BTREE_SYM(delete)(BTREE_NODE **root, BTREE_ITEM key, BTREE_ITEM *olditem, 
-    void *udata)
+static int BTREE_SYM(delete)(BTREE_NODE **root, BTREE_ITEM key,
+    BTREE_ITEM *olditem, void *udata)
 {
 #ifdef BTREE_NOORDER
     (void)root, (void)key, (void)olditem, (void)udata;
@@ -2641,7 +2651,9 @@ static int BTREE_SYM(delete)(BTREE_NODE **root, BTREE_ITEM key, BTREE_ITEM *oldi
 
 
 // returns FOUND or NOTFOUND
-static int BTREE_SYM(front)(BTREE_NODE **root, BTREE_ITEM *item_out, void *udata) {
+static int BTREE_SYM(front)(BTREE_NODE **root, BTREE_ITEM *item_out,
+    void *udata)
+{
     (void)udata;
     if (!*root) {
         return BTREE_NOTFOUND;
@@ -2684,7 +2696,9 @@ static int BTREE_SYM(front_mut)(BTREE_NODE **root, BTREE_ITEM *item_out,
 }
 
 // returns FOUND or NOTFOUND
-static int BTREE_SYM(back)(BTREE_NODE **root, BTREE_ITEM *item_out, void *udata) {
+static int BTREE_SYM(back)(BTREE_NODE **root, BTREE_ITEM *item_out,
+    void *udata)
+{
     (void)udata;
     if (!*root) {
         return BTREE_NOTFOUND;
@@ -2764,8 +2778,8 @@ static int BTREE_SYM(get_at)(BTREE_NODE **root, size_t index, BTREE_ITEM *item,
     }
 }
 
-static int BTREE_SYM(get_at_mut)(BTREE_NODE **root, size_t index, BTREE_ITEM *item,
-    void *udata)
+static int BTREE_SYM(get_at_mut)(BTREE_NODE **root, size_t index,
+    BTREE_ITEM *item, void *udata)
 {
     if (!*root) {
         return BTREE_NOTFOUND;
@@ -2810,7 +2824,8 @@ static int BTREE_SYM(delete_at)(BTREE_NODE **root, size_t index,
     BTREE_ITEM *olditem, void *udata)
 {
     BTREE_ITEM spare = { 0 };
-    int ret = BTREE_SYM(delete0)(root, BTREE_DELAT, spare, index, udata, &spare);
+    int ret = BTREE_SYM(delete0)(root, BTREE_DELAT, spare, index, udata,
+        &spare);
     if (ret != BTREE_DELETED) {
         return ret;
     }
@@ -2820,8 +2835,8 @@ static int BTREE_SYM(delete_at)(BTREE_NODE **root, size_t index,
     return BTREE_DELETED;
 }
 
-static int BTREE_SYM(replace_at)(BTREE_NODE **root, size_t index, BTREE_ITEM item,
-    BTREE_ITEM *olditem, void *udata)
+static int BTREE_SYM(replace_at)(BTREE_NODE **root, size_t index,
+    BTREE_ITEM item, BTREE_ITEM *olditem, void *udata)
 {
     return BTREE_SYM(insert0)(root, BTREE_REPAT, index, item, olditem, udata);
 }
@@ -2970,7 +2985,8 @@ static int BTREE_SYM(pop_back_fastpath)(BTREE_NODE **root, BTREE_ITEM *olditem,
     return ret;
 }
 
-static int BTREE_SYM(pop_back)(BTREE_NODE **root, BTREE_ITEM *olditem, void *udata)
+static int BTREE_SYM(pop_back)(BTREE_NODE **root, BTREE_ITEM *olditem,
+    void *udata)
 {
     int ret;
     ret = BTREE_SYM(pop_back_fastpath)(root, olditem, udata);
@@ -3061,7 +3077,9 @@ static int BTREE_SYM(push_front_fastpath)(BTREE_NODE **root, BTREE_ITEM item,
     return ret;
 }
 
-static int BTREE_SYM(push_front)(BTREE_NODE **root, BTREE_ITEM item, void *udata) {
+static int BTREE_SYM(push_front)(BTREE_NODE **root, BTREE_ITEM item,
+    void *udata)
+{
     int ret = BTREE_SYM(push_front_fastpath)(root, item, udata);
     if (ret) {
         return ret;
@@ -3145,7 +3163,8 @@ static int BTREE_SYM(push_back_fastpath)(BTREE_NODE **root, BTREE_ITEM item,
     return ret;
 }
 
-static int BTREE_SYM(push_back)(BTREE_NODE **root, BTREE_ITEM item, void *udata) {
+static int BTREE_SYM(push_back)(BTREE_NODE **root, BTREE_ITEM item, void *udata)
+{
     int ret = BTREE_SYM(push_back_fastpath)(root, item, udata);
     if (ret) {
         return ret;
@@ -3158,13 +3177,14 @@ static int BTREE_SYM(push_back)(BTREE_NODE **root, BTREE_ITEM item, void *udata)
 // Returns NOMEM: System is out of memory.
 // Returns NOTFOUND: The item cannot be inserted because the index is out of 
 // bounds, thus the index was > tree count.
-static int BTREE_SYM(insert_at)(BTREE_NODE **root, size_t index, BTREE_ITEM item,
-    void *udata)
+static int BTREE_SYM(insert_at)(BTREE_NODE **root, size_t index,
+    BTREE_ITEM item, void *udata)
 {
     return BTREE_SYM(insert0)(root, BTREE_INSAT, index, item, 0, udata);
 }
 
-static int BTREE_SYM(copy)(BTREE_NODE **root, BTREE_NODE **newroot, void *udata) {
+static int BTREE_SYM(copy)(BTREE_NODE **root, BTREE_NODE **newroot, void *udata)
+{
     if (!*root) {
         if (newroot) {
             *newroot = 0;
@@ -3181,7 +3201,9 @@ static int BTREE_SYM(copy)(BTREE_NODE **root, BTREE_NODE **newroot, void *udata)
     return BTREE_COPIED;
 }
 
-static int BTREE_SYM(clone)(BTREE_NODE **root, BTREE_NODE **newroot, void *udata) {
+static int BTREE_SYM(clone)(BTREE_NODE **root, BTREE_NODE **newroot,
+    void *udata)
+{
 #ifndef BTREE_COW
     return BTREE_SYM(copy)(root, newroot, udata);
 #else
@@ -3220,7 +3242,8 @@ BTREE_ITER {
     } u;
 };
 
-static void BTREE_SYM(iter_init)(BTREE_NODE **root, BTREE_ITER **iter, void *udata)
+static void BTREE_SYM(iter_init)(BTREE_NODE **root, BTREE_ITER **iter,
+    void *udata)
 {
     *iter = BTREE_SYM(malloc)(sizeof(BTREE_ITER), udata);
     if (*iter) {
@@ -3913,7 +3936,8 @@ void BTREE_API(iter_init)(BTREE_NODE **root, BTREE_ITER **iter, void *udata) {
     BTREE_SYM(iter_init)(root, iter, udata);
 }
 
-void BTREE_API(iter_init_mut)(BTREE_NODE **root, BTREE_ITER **iter, void *udata) {
+void BTREE_API(iter_init_mut)(BTREE_NODE **root, BTREE_ITER **iter, void *udata)
+{
     BTREE_SYM(iter_init_mut)(root, iter, udata);
 }
 
@@ -3961,8 +3985,8 @@ void BTREE_API(iter_item)(BTREE_ITER *iter, BTREE_ITEM *item) {
     BTREE_SYM(iter_item)(iter, item);
 }
 
-int BTREE_API(scan)(BTREE_NODE **root, bool(*iter)(BTREE_ITEM item, void *udata),
-    void *udata)
+int BTREE_API(scan)(BTREE_NODE **root, bool(*iter)(BTREE_ITEM item,
+    void *udata), void *udata)
 {
     return BTREE_SYM(scan)(root, iter, udata);
 }
@@ -3973,8 +3997,8 @@ int BTREE_API(scan_desc)(BTREE_NODE **root, bool(*iter)(BTREE_ITEM item,
     return BTREE_SYM(scan_desc)(root, iter, udata);
 }
 
-int BTREE_API(seek)(BTREE_NODE **root, BTREE_ITEM key, bool(*iter)(BTREE_ITEM item,
-    void *udata), void *udata)
+int BTREE_API(seek)(BTREE_NODE **root, BTREE_ITEM key,
+    bool(*iter)(BTREE_ITEM item, void *udata), void *udata)
 {
     return BTREE_SYM(seek)(root, key, iter, udata);
 }
