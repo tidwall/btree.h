@@ -681,9 +681,11 @@ static void BTREE_SYM(node_free)(BTREE_NODE *node, void *udata) {
             BTREE_SYM(node_free)(node->children[i], udata);
         }
     }
+#ifdef BTREE_ITEMFREE
     for (int i = 0; i < node->len; i++) {
         BTREE_SYM(item_free)(node->items[i], udata);
     }
+#endif
     BTREE_SYM(free)(node, BTREE_NODE_SIZE(node), udata);
 }
 
@@ -917,16 +919,18 @@ static BTREE_NODE *BTREE_SYM(node_copy)(BTREE_NODE *node, bool deep,
     node2->len = node->len;
     node2->height = node->height;
     
-    int icopied = 0;
     int ccopied = 0;
 
     // Copy items
+#ifdef BTREE_ITEMCOPY
+    int icopied = 0;
     for (int i = 0; i < node->len; i++) {
         if (!BTREE_SYM(item_copy)(node->items[i], &node2->items[i], udata)) {
             goto fail;
         }
         icopied++;
     }
+#endif
     if (!node->isleaf) {
         // Copy children
         for (int i = 0; i <= node->len; i++) {
@@ -955,9 +959,11 @@ static BTREE_NODE *BTREE_SYM(node_copy)(BTREE_NODE *node, bool deep,
     return node2;
 fail:
     // Somthing failed to copy. Assume NOMEM and revert the allocated node.
+#ifdef BTREE_ITEMCOPY
     for (int i = 0; i < icopied; i++) {
         BTREE_SYM(item_free)(node2->items[i], udata);
     }
+#endif
     if (!node->isleaf) {
         for (int i = 0; i < ccopied; i++) {
             BTREE_SYM(node_free)(node2->children[i], udata);
