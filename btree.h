@@ -3691,6 +3691,8 @@ static inline void BTREE_SYM(all_sym_calls)(void) {
     (void)BTREE_SYM(seek_at_mut);
     (void)BTREE_SYM(seek_at_desc_mut);
     (void)BTREE_SYM(shared);
+    (void)BTREE_SYM(item_copy);
+    (void)BTREE_SYM(item_free);
 }
 
 static inline void BTREE_SYM(all_api_calls)(void) {
