@@ -27,15 +27,14 @@ int main() {
  
 
     // Iterate and print values of deque
-    struct deque_iter *iter;
+    struct deque_iter iter;
     deque_iter_init(&deque, &iter, 0);
-    deque_iter_scan(iter);
-    for (; deque_iter_valid(iter); deque_iter_next(iter)) {
+    deque_iter_scan(&iter);
+    for (; deque_iter_valid(&iter); deque_iter_next(&iter)) {
         int item;
-        deque_iter_item(iter, &item);
+        deque_iter_item(&iter, &item);
         printf("%d ", item);
     }
-    deque_iter_release(iter);
     printf("\n");
 
     return 0;

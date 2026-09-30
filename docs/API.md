@@ -213,11 +213,7 @@ int bt_seek_at_desc(struct bt **root, size_t index,
 
 ```c
 /// Initialize an iterator
-/// Make sure to call bt_iter_release() when done iterating.
-void bt_iter_init(struct bt **root, struct bt_iter **iter, void *udata);
-
-/// Release the iterator when it's no longer needed
-void bt_iter_release(struct bt_iter *iter);
+void bt_iter_init(struct bt **root, struct bt_iter *iter, void *udata);
 
 /// Returns an error status code of the iterator, or zero if no error.
 int bt_iter_status(struct bt_iter *iter);

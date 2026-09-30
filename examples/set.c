@@ -11,15 +11,14 @@
 #include "../btree.h"
 
 void print_set(struct set **set) {
-    struct set_iter *iter;
+    struct set_iter iter;
     set_iter_init(set, &iter, 0);
     printf("{ ");
-    for (set_iter_scan(iter); set_iter_valid(iter); set_iter_next(iter)) {
+    for (set_iter_scan(&iter); set_iter_valid(&iter); set_iter_next(&iter)) {
         int item;
-        set_iter_item(iter, &item);
+        set_iter_item(&iter, &item);
         printf("%d ", item);
     }
-    set_iter_release(iter);
     printf("}");
 }
 

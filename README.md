@@ -64,11 +64,11 @@ int main() {
     bt_insert(&tree, 5, 0, 0);
 
     // Print items in tree
-    struct bt_iter *iter;
+    struct bt_iter iter;
     bt_iter_init(&tree, &iter, 0);
-    for (bt_iter_scan(iter); bt_iter_valid(iter); bt_iter_next(iter)) {
+    for (bt_iter_scan(&iter); bt_iter_valid(&iter); bt_iter_next(&iter)) {
         int item;
-        bt_iter_item(iter, &item);
+        bt_iter_item(&iter, &item);
         printf("%d ", item);
     } 
     printf("\n");
@@ -84,7 +84,6 @@ int main() {
     } 
     printf("\n");
 
-    bt_iter_release(iter);
     bt_clear(&tree, 0);
     return 0;
 }
@@ -115,14 +114,15 @@ struct pair {
 
 void print_map(const char *comment, struct map **map) {
     printf("%s", comment);
-    struct map_iter *iter;
+    struct map_iter iter;
     map_iter_init(map, &iter, 0);
-    for (map_iter_scan(iter); map_iter_valid(iter); map_iter_next(iter)) {
+    map_iter_scan(&iter);
+    while (map_iter_valid(&iter)) {
         struct pair pair;
         map_iter_item(iter, &pair);
         printf("[%s] = %d; ", pair.key, pair.value);
+        map_iter_next(&iter);
     }
-    map_iter_release(iter);
     printf("\n");
 }
 
@@ -532,11 +532,11 @@ bt_scan(&tree, user_iter, 0);
 ```
 
 Loop iteration allows for keeping the iterator from leaving the current 
-function. It takes a little more work to set up but is sometimes easier t
+function. It takes a little more work to set up but is sometimes easier to
 manage the context of operation.
 
 ```c
-struct users_iter *iter;
+struct users_iter iter;
 users_iter_init(&users, &iter, 0);
 users_iter_scan(iter);
 while (users_iter_valid(iter)) {
@@ -544,7 +544,6 @@ while (users_iter_valid(iter)) {
     printf("%s %s (age=%d)\n", user.first, user.last, user.age);
     users_iter_next(iter);
 }
-users_iter_release(iter);
 ```
 
 It's usually not safe to modify the btree while iterating. 
@@ -552,22 +551,19 @@ If you need to filter data then it's best to reset the iterator after
 each modification.
 
 ```c
-struct users_iter *iter;
+struct users_iter iter;
 users_iter_init(&users, &iter, 0);
-users_iter_scan(iter);
-while (users_iter_valid(iter)) {
-    users_iter_item(iter, &user);
+users_iter_scan(&iter);
+while (users_iter_valid(&iter)) {
+    users_iter_item(&iter, &user);
     if (user.age >= 30 && user.age < 40) {
         users_delete(&users, user, 0, 0);
-        users_iter_seek(iter, user);
+        users_iter_seek(&iter, user);
         continue;
     } 
-    users_iter_next(iter);
+    users_iter_next(&iter);
 }
-users_iter_release(iter);
 ```
-
-Make sure to call `bt_iter_release()` when you are done iterating;
 
 ## Status codes 
 
