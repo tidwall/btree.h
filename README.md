@@ -698,7 +698,7 @@ The following benchmarks compare the performance of btree.h to the very fast
 [frozenca/btree](https://github.com/frozenca/BTree) for C++ and the built-in
 Rust B-tree.
 
-*See the [tidwall/btree-bench](https://github.com/tidwall/btree-bench) project
+*See the [tidwall/btree.h-bench](https://github.com/tidwall/btree.h-bench) project
 for more information*
 
 ### Details 
